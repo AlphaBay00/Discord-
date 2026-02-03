@@ -32,10 +32,18 @@ client.once("ready", async () => {
         const res = await axios.get(API);
         const count = Number(res.data.online) || 0;
 
-        await messageToEdit.edit(`Online Roblox Script Users: **${count}**`);
-        client.user.setActivity(`Online: ${count}`);
+        if (messageToEdit) {
+          await messageToEdit.edit(`Online Roblox Script Users: **${count}**`);
+          client.user.setActivity(`Online: ${count}`);
+        }
       } catch (e) {
-        console.log("API error:", e.message);
+        console.log("API or Discord edit error:", e.message);
+
+        // fallback: لو الرسالة اختفت، ابعث رسالة جديدة
+        try {
+          const channel = await client.channels.fetch(CHANNEL_ID);
+          messageToEdit = await channel.send(`Online Roblox Script Users: **${Number(res?.data?.online) || 0}**`);
+        } catch {}
       }
     }, INTERVAL);
 
