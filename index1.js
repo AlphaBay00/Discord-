@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const axios = require("axios");
 
-// التوكن من Environment Variable في Railway
+// التوكن من Environment Variable
 const TOKEN = process.env.TOKEN;
 
 // رابط API وعدد القناة
@@ -16,7 +16,7 @@ const client = new Client({
 
 let messageToEdit = null;      // رسالة Online count
 let bestMessageToEdit = null;  // رسالة Best number
-let bestNumber = 0;            // أعلى عدد وصل له البوت
+let bestNumber = null;         // أعلى عدد وصل له البوت, null معناه None
 
 client.once("ready", async () => {
   console.log("Bot ready!");
@@ -29,7 +29,7 @@ client.once("ready", async () => {
     messageToEdit = msg;
 
     // أول رسالة للـBest number
-    const bestMsg = await channel.send("Best number: **0**");
+    const bestMsg = await channel.send("Best number: **None**");
     bestMessageToEdit = bestMsg;
 
     // تحديث كل ثانية
@@ -38,14 +38,14 @@ client.once("ready", async () => {
         const res = await axios.get(API);
         const count = Number(res.data.online) || 0;
 
-        // تحديث الرسالة الأولى
+        // تحديث رسالة Online count
         if (messageToEdit) {
           await messageToEdit.edit(`Online Roblox Script Users: **${count}**`);
           client.user.setActivity(`Online: ${count}`);
         }
 
-        // تحديث الرسالة الثانية إذا العدد أكبر من السابق
-        if (count > bestNumber) {
+        // تحديث Best number فقط إذا العدد أكبر من الحالي
+        if (bestNumber === null || count > bestNumber) {
           bestNumber = count;
           if (bestMessageToEdit) {
             await bestMessageToEdit.edit(`Best number: **${bestNumber}**`);
@@ -64,7 +64,7 @@ client.once("ready", async () => {
           }
 
           if (!bestMessageToEdit) {
-            bestMessageToEdit = await channel.send(`Best number: **${bestNumber}**`);
+            bestMessageToEdit = await channel.send(`Best number: **${bestNumber ?? "None"}**`);
           }
 
         } catch {}
