@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const axios = require("axios");
 
-// التوكن يقرأ من Environment Variable في Railway
+// التوكن من Environment Variable في Railway
 const TOKEN = process.env.TOKEN;
 
 // رابط API وعدد القناة
@@ -14,7 +14,9 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
 });
 
-let messageToEdit = null;
+let messageToEdit = null;      // رسالة Online count
+let bestMessageToEdit = null;  // رسالة Best number
+let bestNumber = 0;            // أعلى عدد وصل له البوت
 
 client.once("ready", async () => {
   console.log("Bot ready!");
@@ -22,27 +24,49 @@ client.once("ready", async () => {
   try {
     const channel = await client.channels.fetch(CHANNEL_ID);
 
-    // أول رسالة تظهر "none"
+    // أول رسالة للعدد الحالي
     const msg = await channel.send("Online Roblox Script Users: **none**");
     messageToEdit = msg;
 
-    // تحديث الرسالة كل ثانية حسب عدد اللاعبين من API
+    // أول رسالة للـBest number
+    const bestMsg = await channel.send("Best number: **0**");
+    bestMessageToEdit = bestMsg;
+
+    // تحديث كل ثانية
     setInterval(async () => {
       try {
         const res = await axios.get(API);
         const count = Number(res.data.online) || 0;
 
+        // تحديث الرسالة الأولى
         if (messageToEdit) {
           await messageToEdit.edit(`Online Roblox Script Users: **${count}**`);
           client.user.setActivity(`Online: ${count}`);
         }
+
+        // تحديث الرسالة الثانية إذا العدد أكبر من السابق
+        if (count > bestNumber) {
+          bestNumber = count;
+          if (bestMessageToEdit) {
+            await bestMessageToEdit.edit(`Best number: **${bestNumber}**`);
+          }
+        }
+
       } catch (e) {
         console.log("API or Discord edit error:", e.message);
 
-        // fallback: لو الرسالة اختفت، ابعث رسالة جديدة
+        // fallback: لو الرسائل اختفت، ابعث رسائل جديدة
         try {
           const channel = await client.channels.fetch(CHANNEL_ID);
-          messageToEdit = await channel.send(`Online Roblox Script Users: **${Number(res?.data?.online) || 0}**`);
+
+          if (!messageToEdit) {
+            messageToEdit = await channel.send(`Online Roblox Script Users: **${Number(res?.data?.online) || 0}**`);
+          }
+
+          if (!bestMessageToEdit) {
+            bestMessageToEdit = await channel.send(`Best number: **${bestNumber}**`);
+          }
+
         } catch {}
       }
     }, INTERVAL);
