@@ -1,19 +1,17 @@
-require("dotenv").config();
-
 const { Client, GatewayIntentBits } = require("discord.js");
 const axios = require("axios");
 
-// توكن البوت من env
+// التوكن يقرأ من Environment Variable في Railway
 const TOKEN = process.env.TOKEN;
 
-// ثابت داخل الكود
+// رابط API وعدد القناة
 const API = "https://roblox-api-production-08e4.up.railway.app/count";
 const CHANNEL_ID = "1468033384176423064";
 
-const INTERVAL = 1000;
+const INTERVAL = 1000; // تحديث كل ثانية
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds]
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
 });
 
 let messageToEdit = null;
@@ -28,7 +26,7 @@ client.once("ready", async () => {
     const msg = await channel.send("Online Roblox Script Users: **none**");
     messageToEdit = msg;
 
-    // تحديث الرسالة كل ثانية حسب عدد اللاعبين
+    // تحديث الرسالة كل ثانية حسب عدد اللاعبين من API
     setInterval(async () => {
       try {
         const res = await axios.get(API);
