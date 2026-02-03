@@ -25,11 +25,11 @@ client.once("ready", async () => {
     const channel = await client.channels.fetch(CHANNEL_ID);
 
     // أول رسالة للعدد الحالي
-    const msg = await channel.send("Online Roblox Script Users: **none**");
+    const msg = await channel.send("PhantomX Online Users Now: **0**");
     messageToEdit = msg;
 
     // أول رسالة للـBest number
-    const bestMsg = await channel.send("Best number: **None**");
+    const bestMsg = await channel.send("Best Number Of PhantomX Users: **None**");
     bestMessageToEdit = bestMsg;
 
     // تحديث كل ثانية
@@ -40,7 +40,7 @@ client.once("ready", async () => {
 
         // تحديث رسالة Online count
         if (messageToEdit) {
-          await messageToEdit.edit(`Online Roblox Script Users: **${count}**`);
+          await messageToEdit.edit(`PhantomX Online Users Now: **${count}**`);
           client.user.setActivity(`Online: ${count}`);
         }
 
@@ -48,7 +48,7 @@ client.once("ready", async () => {
         if (bestNumber === null || count > bestNumber) {
           bestNumber = count;
           if (bestMessageToEdit) {
-            await bestMessageToEdit.edit(`Best number: **${bestNumber}**`);
+            await bestMessageToEdit.edit(`Best Number Of PhantomX Users: **${bestNumber}**`);
           }
         }
 
@@ -60,11 +60,11 @@ client.once("ready", async () => {
           const channel = await client.channels.fetch(CHANNEL_ID);
 
           if (!messageToEdit) {
-            messageToEdit = await channel.send(`Online Roblox Script Users: **${Number(res?.data?.online) || 0}**`);
+            messageToEdit = await channel.send(`PhantomX Online Users Now: **${Number(res?.data?.online) || 0}**`);
           }
 
           if (!bestMessageToEdit) {
-            bestMessageToEdit = await channel.send(`Best number: **${bestNumber ?? "None"}**`);
+            bestMessageToEdit = await channel.send(`Best Number Of PhantomX Users: **${bestNumber ?? "None"}**`);
           }
 
         } catch {}
